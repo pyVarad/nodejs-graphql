@@ -3,6 +3,9 @@ const expressGraphQL = require('express-graphql').graphqlHTTP;
 const schema = require('./schema/schema');
 
 const app = express();
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
 
 app.use('/graphql', expressGraphQL({
     schema,
