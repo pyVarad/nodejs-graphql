@@ -3,12 +3,32 @@
         {
             "id": "23",
             "firstName": "Bill",
-            "age": 20
+            "age": 20,
+            "companyId": "0001"
         },
         {
             "id": "47",
             "firstName": "Samantha",
-            "age": 21
+            "age": 21,
+            "companyId": "0002"
+        },
+        {
+            "id": "48",
+            "firstName": "Rick",
+            "age": 32,
+            "companyId": "0002"
+        }
+    ],
+    "company": [
+        {
+            "id": "0001",
+            "name": "ABC Company",
+            "description": "This is abc company"
+        },
+        {
+            "id": "0002",
+            "name": "DEF Company",
+            "description": "This is a def company"
         }
     ]
 }
