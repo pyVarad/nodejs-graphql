@@ -9,24 +9,40 @@ const {
 } = graphql;
 const axios = require('axios');
 
-const UserType = new GraphQLObjectType({
-    name: 'User',
-    fields: {
-        id: { type: GraphQLString },
-        firstName: { type: GraphQLString },
-        age: { type: GraphQLInt }
-    }
-});
-
+// Define company type above user type.
 const CompanyType = new GraphQLObjectType({
     name: 'Company',
-    fields: {
+    fields: () => ({
         id: { type: GraphQLString },
         name: { type: GraphQLString },
         description: { type: GraphQLString },
-        users: { type: GraphQLList(UserType) }
-    }
-})
+        users: {
+            type: new GraphQLList(UserType),
+            resolve(parentValue, args) {
+                const { id } = { ...parentValue };
+                return axios.get(`${process.env.API_HOST}company/${id}/users`)
+                    .then(response => response.data)
+            }
+        }
+    })
+});
+
+const UserType = new GraphQLObjectType({
+    name: 'User',
+    fields: () => ({
+        id: { type: GraphQLString },
+        firstName: { type: GraphQLString },
+        age: { type: GraphQLInt },
+        company: {
+            type: CompanyType,
+            resolve(parentValue, args) {
+                const { companyId } = { ...parentValue };
+                return axios.get(`${process.env.API_HOST}company/${companyId}`)
+                    .then(response => response.data)
+            }
+        }
+    })
+});
 
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
@@ -35,7 +51,6 @@ const RootQuery = new GraphQLObjectType({
             type: UserType,
             args: { id: { type: GraphQLString } },
             resolve(parentValue, args) {
-                console.log(`${process.env.API_HOST}users/${args.id}`)
                 return axios.get(`${process.env.API_HOST}users/${args.id}`)
                     .then(response => response.data);
             }
@@ -54,22 +69,6 @@ const RootQuery = new GraphQLObjectType({
             resolve(parentValue, args) {
                 return axios.get(`${process.env.API_HOST}company/${args.id}`)
                     .then(response => response.data);
-            }
-        },
-        getAllCompany: {
-            type: GraphQLList(CompanyType),
-            args: {},
-            resolve(parentValue, args) {
-                return axios.get(`${process.env.API_HOST}company`)
-                    .then(response => response.data);
-            }
-        },
-        getUsersByCompany: {
-            type: GraphQLList(UserType),
-            args: { id: { type: GraphQLString } },
-            resolve(parentValue, args) {
-                return axios.get(`${process.env.API_HOST}company/${args.id}/users`)
-                    .then(response => response.data)
             }
         }
     }
